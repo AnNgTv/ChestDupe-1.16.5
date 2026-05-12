@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minCompatibilityLevel": "JAVA_8",
+  "package": "me.saturn.forceop.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "ClientPlayerEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

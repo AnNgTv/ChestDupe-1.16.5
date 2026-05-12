@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "forceop",
+  "version": "${version}",
+  "name": "Force OP",
+  "description": "A mod to 'get' OP (Social Engineering)",
+  "authors": [
+    "Armada"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "me.saturn.forceop.Main"
+    ]
+  },
+  "mixins": [
+    "forceop.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "minecraft": "1.16.5"
+  }
+}
