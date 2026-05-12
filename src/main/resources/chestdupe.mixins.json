@@ -4,7 +4,8 @@
   "package": "me.saturn.chestdupe.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "ChestScreenMixin"
+    "ContainerScreenMixin",
+    "KeyboardMixin"
   ],
   "injectors": {
     "defaultRequire": 1
