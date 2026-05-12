@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
-  "id": "forceop",
+  "id": "chestdupe",
   "version": "${version}",
-  "name": "Force OP",
-  "description": "A mod to 'get' OP (Social Engineering)",
+  "name": "Chest Dupe",
+  "description": "A mod to dupe items using chests in Fabric 1.16.5",
   "authors": [
-    "AnNgTv"
+    "Gemini CLI"
   ],
   "contact": {},
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
     "main": [
-      "me.saturn.forceop.Main"
+      "me.saturn.chestdupe.Main"
     ]
   },
   "mixins": [
-    "forceop.mixins.json"
+    "chestdupe.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.11.3",

@@ -1,10 +1,10 @@
 {
   "required": true,
   "minCompatibilityLevel": "JAVA_8",
-  "package": "me.saturn.forceop.mixin",
+  "package": "me.saturn.chestdupe.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "ClientPlayerEntityMixin"
+    "ChestScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

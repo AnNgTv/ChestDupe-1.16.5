@@ -1,10 +1,10 @@
-package me.saturn.forceop;
+package me.saturn.chestdupe;
 
 import net.fabricmc.api.ModInitializer;
 
 public class Main implements ModInitializer {
 	@Override
 	public void onInitialize() {
-		System.out.println("Force OP Mod (1.16.5) initialized");
+		System.out.println("Chest Dupe Mod (1.16.5) initialized");
 	}
 }
