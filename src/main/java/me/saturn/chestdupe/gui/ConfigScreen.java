@@ -41,7 +41,7 @@ public class ConfigScreen extends Screen {
     }
 
     @Override
-    public boolean doesGuiPauseGame() {
+    public boolean isPauseScreen() {
         return false;
     }
 }
