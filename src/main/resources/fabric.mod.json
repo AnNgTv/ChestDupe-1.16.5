@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "chestdupe",
+  "version": "1.0.0",
+  "name": "ChestDupe",
+  "description": "Simple chest duplication utility for Fabric 1.16.5",
+  "authors": [
+    "AnNgTv"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "me.gemini.chestdupe.ChestDupe"
+    ]
+  },
+  "mixins": [
+    "chestdupe.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "minecraft": "1.16.5"
+  }
+}

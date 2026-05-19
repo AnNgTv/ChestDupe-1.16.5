@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minCompatibilityLevel": "JAVA_8",
+  "package": "me.gemini.chestdupe.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "ChestScreenMixin",
+    "MouseMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
