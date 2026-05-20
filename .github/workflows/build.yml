@@ -1,15 +1,15 @@
-name: Build Mod
+name: Build and Release Mod
 
 on:
   push:
-    branches: [ "*" ]
-  pull_request:
-    branches: [ "*" ]
+    branches: [ "master" ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -29,8 +29,21 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name: Get Version
+        id: get_version
+        run: echo "VERSION=$(grep 'mod_version' gradle.properties | cut -d'=' -f2 | xargs)" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: ChestDupe-Mod
-          path: build/libs/*.jar
+          tag_name: v${{ steps.get_version.outputs.VERSION }}
+          name: ChestDupe 1.16.5 (Java 8 Compatible) - v${{ steps.get_version.outputs.VERSION }}
+          body: |
+            Bản build chính thức của ChestDupe cho Minecraft 1.16.5.
+            - Hỗ trợ chạy trên **Java 8** và mới hơn.
+            - Sửa lỗi `UnsupportedClassVersionError` khi chạy trên các launcher cũ.
+          files: build/libs/*.jar
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
