@@ -22,7 +22,7 @@ public abstract class ContainerScreenMixin extends Screen {
         super(title);
     }
 
-    @Inject(method = "init()V", at = @At("TAIL"))
+    @Inject(method = "init(Lnet/minecraft/client/util/math/MatrixStack;II)V", at = @At("TAIL"))
     protected void onInit(CallbackInfo ci) {
         if (!Config.showButtons) return;
         
