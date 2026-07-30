@@ -22,43 +22,88 @@ jobs:
       - name: Build with Gradle
         run: gradle build
 
-      - name: Get Version
-        id: version
+      - name: Get Current Version
+        id: current_version
         run: |
-          VERSION=$(grep "version" build.gradle | head -1 | sed -E "s/.*version['\"]?[=:]?['\"]?([^'\"]*).*/\1/" | tr -d ' ')
-          if [ -z "$VERSION" ]; then VERSION="1.0.0"; fi
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "JAR_FILE=ChestDupe-${VERSION}.jar" >> $GITHUB_OUTPUT
+          CURRENT=$(grep "version" build.gradle | head -1 | sed -E "s/.*version['\"]?[=:]?['\"]?([^'\"]*).*/\1/" | tr -d ' ')
+          if [ -z "$CURRENT" ]; then CURRENT="1.0.0"; fi
+          echo "CURRENT=$CURRENT" >> $GITHUB_OUTPUT
+
+      - name: Calculate Next Version
+        id: next_version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          CURRENT="${{ steps.current_version.outputs.CURRENT }}"
+          
+          # Parse version (major.minor.patch)
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+          MINOR=${MINOR:-0}
+          PATCH=${PATCH:-0}
+          
+          # Increment patch version
+          PATCH=$((PATCH + 1))
+          NEXT="${MAJOR}.${MINOR}.${PATCH}"
+          
+          echo "NEXT=$NEXT" >> $GITHUB_OUTPUT
+          echo "📈 Version: $CURRENT → $NEXT"
+
+      - name: Update Version in build.gradle
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          NEXT_VERSION="${{ steps.next_version.outputs.NEXT }}"
+          CURRENT_VERSION="${{ steps.current_version.outputs.CURRENT }}"
+          
+          # Backup file
+          cp build.gradle build.gradle.bak
+          
+          # Replace version
+          sed -i "s/version.*=.*['\"]${CURRENT_VERSION}['\"]/version = '${NEXT_VERSION}'/g" build.gradle
+          
+          # Verify change
+          echo "✅ Updated version to: $NEXT_VERSION"
+          grep "version" build.gradle | head -1
 
       - name: Rename Artifact
         run: |
           JAR_FILE=$(ls build/libs/*.jar | head -1)
           if [ -f "$JAR_FILE" ]; then
-            mv "$JAR_FILE" "build/libs/ChestDupe-${{ steps.version.outputs.VERSION }}.jar"
+            mv "$JAR_FILE" "build/libs/ChestDupe-${{ steps.current_version.outputs.CURRENT }}.jar"
           fi
 
       - name: Create Release
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v1
         with:
-          files: build/libs/*.jar
-          tag_name: v${{ steps.version.outputs.VERSION }}
-          name: ChestDupe v${{ steps.version.outputs.VERSION }}
+          files: build/libs/ChestDupe-*.jar
+          tag_name: v${{ steps.current_version.outputs.CURRENT }}
+          name: ChestDupe v${{ steps.current_version.outputs.CURRENT }}
           body: |
-            🎉 **ChestDupe v${{ steps.version.outputs.VERSION }}**
+            🎉 **ChestDupe v${{ steps.current_version.outputs.CURRENT }}**
             
-            Phiên bản cập nhật mới nhất của mod ChestDupe cho Minecraft 1.16.5
+            📦 Build tự động từ source code
             
-            📥 **Tải xuống:** Xem tệp `.jar` ở phần Assets bên dưới
+            ➡️ **Phiên bản tiếp theo sẽ là:** v${{ steps.next_version.outputs.NEXT }}
             
-            🔄 Tự động build từ source code
+            📝 Changelog: [View all releases](https://github.com/${{ github.repository }}/releases)
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Artifact (Fallback)
+      - name: Commit & Push Version Update
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add build.gradle
+          git commit -m "chore: bump version to ${{ steps.next_version.outputs.NEXT }}" || true
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ChestDupe-JAR
-          path: build/libs/*.jar
+          path: build/libs/ChestDupe-*.jar
