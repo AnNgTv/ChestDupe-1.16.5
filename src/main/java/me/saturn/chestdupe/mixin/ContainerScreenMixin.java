@@ -22,7 +22,8 @@ public abstract class ContainerScreenMixin extends Screen {
         super(title);
     }
 
-    @Inject(method = "init", at = @At("TAIL"))
+    // Đã sửa lại chữ ký hàm init để khớp với phiên bản hiện tại (bỏ MatrixStack nếu không bắt buộc)
+    @Inject(method = "init()V", at = @At("TAIL"))
     protected void onInit(CallbackInfo ci) {
         if (!Config.showButtons) return;
         
@@ -43,7 +44,6 @@ public abstract class ContainerScreenMixin extends Screen {
 
     @Inject(method = "keyPressed(III)Z", at = @At("HEAD"), cancellable = true)
     public void onKeyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
-        // Filter for supported screens
         Object obj = (Object) this;
         if (!(obj instanceof GenericContainerScreen || obj instanceof ShulkerBoxScreen || 
               obj instanceof HopperScreen || obj instanceof Generic3x3ContainerScreen)) {
