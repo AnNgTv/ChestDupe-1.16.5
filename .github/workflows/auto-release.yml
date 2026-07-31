@@ -1,0 +1,63 @@
+name: Auto Release
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'gradle.properties'
+  workflow_dispatch:
+
+permissions:
+  contents: write  # cần để tạo tag / release
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read mod_version
+        id: version
+        run: |
+          # đọc mod_version từ gradle.properties (hỗ trợ khoảng trắng)
+          VERSION=$(grep -E '^mod_version' gradle.properties | sed 's/.*= *//; s/ *$//')
+          if [ -z "$VERSION" ]; then
+            echo "No mod_version found in gradle.properties" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if tag exists on remote
+        id: tagcheck
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          echo "Checking for tag $TAG on origin..."
+          if git ls-remote --tags origin | grep -q "refs/tags/${TAG}$"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create and push tag (if missing)
+        if: steps.tagcheck.outputs.exists == 'false'
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          echo "Creating tag $TAG"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Annotated tag
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          release_name: v${{ steps.version.outputs.version }}
+          body: |
+            Fix @Inject signature for init to match ContainerScreen (net.class_465) on MC 1.16.5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
